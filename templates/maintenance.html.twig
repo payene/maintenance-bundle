@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <title>{% block title %}Maintenance en cours{% endblock %}</title>
+    <style>
+        {% block styles %}
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg-1: #0f172a;
+            --accent: #6366f1;
+            --accent-2: #8b5cf6;
+            --text: #e2e8f0;
+            --text-dim: #94a3b8;
+            --warning: #fbbf24;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-1);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        .bg-blobs { position: fixed; inset: 0; z-index: 0; overflow: hidden; }
+        .bg-blobs::before, .bg-blobs::after {
+            content: '';
+            position: absolute;
+            width: 60vmax; height: 60vmax;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.35;
+            animation: float 20s ease-in-out infinite;
+        }
+        .bg-blobs::before {
+            background: radial-gradient(circle, var(--accent), transparent 70%);
+            top: -20vmax; left: -20vmax;
+        }
+        .bg-blobs::after {
+            background: radial-gradient(circle, var(--accent-2), transparent 70%);
+            bottom: -20vmax; right: -20vmax;
+            animation-delay: -10s;
+        }
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50%      { transform: translate(10vmax, 10vmax); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 24px;
+            padding: 3rem 2.5rem;
+            max-width: 560px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: cardEnter 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes cardEnter {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .icon {
+            width: 80px; height: 80px;
+            margin: 0 auto 1.5rem;
+            color: var(--accent);
+            animation: rotate 4s linear infinite;
+        }
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
+
+        h1 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #fff, var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .message {
+            font-size: 1.05rem;
+            color: var(--text-dim);
+            line-height: 1.7;
+            margin-bottom: 2rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.375rem 0.875rem;
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 999px;
+            font-size: 0.75rem;
+            color: var(--accent);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1.5rem;
+        }
+
+        .countdown {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+        .countdown-item {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.15);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            min-width: 70px;
+        }
+        .countdown-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--accent);
+            font-variant-numeric: tabular-nums;
+        }
+        .countdown-label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 0.25rem;
+        }
+
+        .overdue-notice {
+            margin: 2rem 0;
+            padding: 1.25rem 1.5rem;
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            border-radius: 12px;
+            color: var(--warning);
+            line-height: 1.6;
+            text-align: left;
+        }
+        .overdue-notice p + p { margin-top: 0.5rem; }
+
+        .retry-hint {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            margin-top: 1rem;
+        }
+        .retry-hint strong {
+            color: var(--accent);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .footer {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(148, 163, 184, 0.1);
+            font-size: 0.875rem;
+            color: var(--text-dim);
+        }
+
+        @media (max-width: 480px) {
+            .card { padding: 2rem 1.5rem; }
+            h1 { font-size: 1.5rem; }
+            .countdown-item { min-width: 55px; padding: 0.5rem; }
+            .countdown-value { font-size: 1.25rem; }
+        }
+        {% endblock %}
+    </style>
+</head>
+<body>
+    {% block body %}
+    <div class="bg-blobs"></div>
+    <div class="container">
+        <div class="card">
+            {% block badge %}
+                <span class="badge">Maintenance en cours</span>
+            {% endblock %}
+
+            {% block header %}
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                     aria-hidden="true">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+                <h1>Nous revenons très vite</h1>
+            {% endblock %}
+
+            {% block content %}
+                {% if overdue %}
+                    {% block overdue %}
+                        <div class="overdue-notice">
+                            {{ overdue_message|default("La maintenance prend un peu plus de temps que prévu.\nNous finalisons les derniers ajustements — merci de votre patience.")|nl2br }}
+                        </div>
+                        <p class="retry-hint">
+                            Cette page se rafraîchira automatiquement dans
+                            <strong id="retry-seconds">60</strong> s.
+                        </p>
+                    {% endblock %}
+                {% else %}
+                    {% block message %}
+                        <p class="message">
+                            {{ message|default("Notre équipe effectue actuellement une mise à jour pour améliorer votre expérience. Merci de votre patience.")|nl2br }}
+                        </p>
+                    {% endblock %}
+
+                    {% block countdown %}
+                        {% if until %}
+                            <div class="countdown" id="countdown" data-until="{{ until|date('c') }}">
+                                <div class="countdown-item">
+                                    <div class="countdown-value" data-unit="hours">--</div>
+                                    <div class="countdown-label">Heures</div>
+                                </div>
+                                <div class="countdown-item">
+                                    <div class="countdown-value" data-unit="minutes">--</div>
+                                    <div class="countdown-label">Minutes</div>
+                                </div>
+                                <div class="countdown-item">
+                                    <div class="countdown-value" data-unit="seconds">--</div>
+                                    <div class="countdown-label">Secondes</div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endblock %}
+                {% endif %}
+            {% endblock %}
+
+            {% block footer %}
+                <div class="footer">
+                    <p>Merci de votre patience.</p>
+                </div>
+            {% endblock %}
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block scripts %}
+    <script>
+    (function () {
+        'use strict';
+
+        // Cas 1 : maintenance dépassée → reload unique toutes les 60s
+        var retryEl = document.getElementById('retry-seconds');
+        if (retryEl) {
+            var remaining = 60;
+            retryEl.textContent = remaining;
+
+            setInterval(function () {
+                remaining--;
+                if (remaining <= 0) {
+                    window.location.reload();
+                    return;
+                }
+                retryEl.textContent = remaining;
+            }, 1000);
+
+            return;
+        }
+
+        // Cas 2 : compte à rebours normal
+        var el = document.getElementById('countdown');
+        if (!el) {
+            return;
+        }
+
+        var target = new Date(el.dataset.until).getTime();
+        var units = {
+            hours:   el.querySelector('[data-unit="hours"]'),
+            minutes: el.querySelector('[data-unit="minutes"]'),
+            seconds: el.querySelector('[data-unit="seconds"]')
+        };
+
+        function pad(n) { return String(n).padStart(2, '0'); }
+
+        var intervalId = setInterval(tick, 1000);
+        var reloadScheduled = false;
+
+        function tick() {
+            var diff = target - Date.now();
+
+            if (diff <= 0) {
+                clearInterval(intervalId);
+                units.hours.textContent   = '00';
+                units.minutes.textContent = '00';
+                units.seconds.textContent = '00';
+
+                if (!reloadScheduled) {
+                    reloadScheduled = true;
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 60_000);
+                }
+
+                return;
+            }
+
+            var total = Math.floor(diff / 1000);
+            units.hours.textContent   = pad(Math.floor(total / 3600));
+            units.minutes.textContent = pad(Math.floor((total % 3600) / 60));
+            units.seconds.textContent = pad(total % 60);
+        }
+
+        tick();
+    })();
+    </script>
+    {% endblock %}
+</body>
+</html>

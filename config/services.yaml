@@ -1,0 +1,44 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    Payene\MaintenanceBundle\Service\MaintenanceManager:
+        arguments:
+            $storage: '@Payene\MaintenanceBundle\Storage\MaintenanceStorageInterface'
+
+    Payene\MaintenanceBundle\EventSubscriber\MaintenanceSubscriber:
+        arguments:
+            $panelPath: '%maintenance.panel_path%'
+        tags:
+            - { name: kernel.event_subscriber }
+
+    Payene\MaintenanceBundle\Command\MaintenanceOnCommand: ~
+    Payene\MaintenanceBundle\Command\MaintenanceOffCommand: ~
+    Payene\MaintenanceBundle\Command\MaintenanceStatusCommand: ~
+
+    Payene\MaintenanceBundle\Controller\AdminMaintenanceController:
+        tags:
+            - { name: controller.service_arguments }
+
+
+    # ─────────────────────────────────────────────────────────────
+    # Services activés aux étapes 6, 7 et 8 (décommenter après création)
+    # ─────────────────────────────────────────────────────────────
+    #
+    # Payene\MaintenanceBundle\EventSubscriber\MaintenanceSubscriber:
+    #     arguments:
+    #         $panelPath: '%maintenance.panel_path%'
+    #     tags:
+    #         - { name: kernel.event_subscriber }
+    #
+    # Payene\MaintenanceBundle\Command\MaintenanceCommand:
+    #     tags:
+    #         - { name: console.command }
+    #
+    # Payene\MaintenanceBundle\Controller\AdminMaintenanceController:
+    #     arguments:
+    #         $panelPath: '%maintenance.panel_path%'
+    #     tags:
+    #         - { name: controller.service_arguments }

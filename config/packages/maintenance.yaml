@@ -1,0 +1,6 @@
+# config/packages/maintenance.yaml
+maintenance:
+    storage: json
+    json_path: '%kernel.project_dir%/var/maintenance.json'
+    cache_pool: cache.app
+    panel_path: /admin/maintenance

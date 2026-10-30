@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Mode maintenance — Administration</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --border: #e2e8f0;
+            --text: #1e293b;
+            --dim: #64748b;
+            --primary: #6366f1;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --radius: 12px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 2rem 1rem;
+        }
+
+        .wrap { max-width: 1400px; margin: 0 auto; }
+
+        header.page {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        h1 { font-size: 1.75rem; font-weight: 700; }
+
+        .badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .badge.on  { background: #fee2e2; color: #991b1b; }
+        .badge.off { background: #dcfce7; color: #166534; }
+
+        .btn {
+            padding: 0.65rem 1.25rem;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .btn.primary { background: var(--primary); color: #fff; }
+        .btn.success { background: var(--success); color: #fff; }
+        .btn.danger  { background: var(--danger);  color: #fff; }
+        .btn.small   { padding: 0.35rem 0.7rem; font-size: 0.8rem; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        @media (max-width: 960px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        .card h2 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--dim);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            margin: 1.25rem 0 0.75rem;
+        }
+        .card h3:first-of-type { margin-top: 0; }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.4rem;
+        }
+
+        .hint {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--dim);
+            margin-top: 0.25rem;
+            font-weight: 400;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        textarea {
+            width: 100%;
+            padding: 0.6rem 0.8rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+        }
+
+        textarea { min-height: 100px; resize: vertical; }
+        .field { margin-bottom: 1rem; }
+
+        .row { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; }
+        .row > input { flex: 1; }
+
+        ul.items { list-style: none; margin-bottom: 0.75rem; }
+        ul.items li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 0.75rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 0.4rem;
+            font-family: 'SF Mono', Consolas, monospace;
+            font-size: 0.9rem;
+        }
+        ul.items li.empty {
+            color: var(--dim);
+            font-style: italic;
+            font-family: inherit;
+            justify-content: center;
+        }
+
+        .flash {
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
+            font-weight: 500;
+            border-left: 4px solid;
+        }
+        .flash.success { background: #f0fdf4; border-color: var(--success); color: #166534; }
+        .flash.error   { background: #fef2f2; border-color: var(--danger);  color: #991b1b; }
+        .flash.warning { background: #fffbeb; border-color: var(--warning); color: #92400e; }
+
+        .preview-section { grid-column: 1 / -1; }
+        .preview-frame {
+            width: 100%;
+            height: 640px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: #0f172a;
+        }
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .preview-note { font-size: 0.85rem; color: var(--dim); }
+    </style>
+</head>
+<body>
+<div class="wrap">
+
+    <header class="page">
+        <div style="display:flex; align-items:center; gap:1rem;">
+            <h1>Mode maintenance</h1>
+            {% if state.enabled %}
+                <span class="badge on">● Activé</span>
+            {% else %}
+                <span class="badge off">● Désactivé</span>
+            {% endif %}
+        </div>
+        <form method="post" action="{{ path('payene_maintenance_toggle') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('maintenance_toggle') }}">
+            {% if state.enabled %}
+                <button type="submit" class="btn success">Désactiver la maintenance</button>
+            {% else %}
+                <button type="submit" class="btn danger">Activer la maintenance</button>
+            {% endif %}
+        </form>
+    </header>
+
+    {% for type in ['success', 'error', 'warning'] %}
+        {% for message in app.flashes(type) %}
+            <div class="flash {{ type }}">{{ message }}</div>
+        {% endfor %}
+    {% endfor %}
+
+    <div class="grid">
+
+        {# --------- Paramètres --------- #}
+        <section class="card">
+            <h2>Paramètres de la page</h2>
+            <form method="post" action="{{ path('payene_maintenance_settings') }}" id="settings-form">
+                <input type="hidden" name="_token" value="{{ csrf_token('maintenance_settings') }}">
+
+                <div class="field">
+                    <label for="message">Message affiché</label>
+                    <textarea id="message" name="message"
+                        placeholder="Notre équipe effectue une mise à jour pour améliorer votre expérience.">{{ state.message }}</textarea>
+                    <span class="hint">Laissez vide pour utiliser le message par défaut du template.</span>
+                </div>
+
+                <div class="field">
+                    <label for="overdue_message">Message si la maintenance dépasse l'heure prévue</label>
+                    <textarea id="overdue_message" name="overdue_message"
+                        placeholder="La maintenance prend un peu plus de temps que prévu. Merci de votre patience.">{{ state.overdueMessage }}</textarea>
+                    <span class="hint">Affiché une fois la date de fin dépassée.</span>
+                </div>
+
+                <div class="field">
+                    <label for="until">Fin de maintenance (optionnel)</label>
+                    <input type="text" id="until" name="until"
+                        value="{{ state.until ? state.until|date('Y-m-d H:i:s') : '' }}"
+                        placeholder="+2 hours ou 2026-10-30 18:00">
+                    <span class="hint">Formats : <code>+2 hours</code>, <code>+1 day</code>, <code>2026-10-30 18:00</code>.</span>
+                </div>
+
+                <div class="field">
+                    <label for="retry_after">Retry-After (secondes)</label>
+                    <input type="number" id="retry_after" name="retry_after"
+                        value="{{ state.retryAfter }}" min="0" step="1">
+                    <span class="hint">Indique aux navigateurs quand réessayer.</span>
+                </div>
+
+                <button type="submit" class="btn primary">Enregistrer</button>
+            </form>
+        </section>
+
+        {# --------- Whitelist --------- #}
+        <section class="card">
+            <h2>Whitelist</h2>
+
+            <h3>Adresses IP</h3>
+            <ul class="items">
+                {% for ip in state.whitelistIps %}
+                    <li>
+                        <span>{{ ip }}</span>
+                        <form method="post" action="{{ path('payene_maintenance_whitelist_ip_remove') }}" style="display:inline">
+                            <input type="hidden" name="_token" value="{{ csrf_token('maintenance_whitelist_ip_remove') }}">
+                            <input type="hidden" name="ip" value="{{ ip }}">
+                            <button type="submit" class="btn danger small" title="Retirer">✕</button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li class="empty">Aucune IP whitelistée</li>
+                {% endfor %}
+            </ul>
+            <form method="post" action="{{ path('payene_maintenance_whitelist_ip_add') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('maintenance_whitelist_ip_add') }}">
+                <div class="row">
+                    <input type="text" name="ip" placeholder="192.168.1.42 ou 10.0.0.0/8" required>
+                    <button type="submit" class="btn primary">Ajouter</button>
+                </div>
+                <span class="hint">Support des plages CIDR (<code>192.168.0.0/16</code>).</span>
+            </form>
+
+            <h3>Chemins whitelistés</h3>
+            <ul class="items">
+                {% for path in state.whitelistPaths %}
+                    <li>
+                        <span>{{ path }}</span>
+                        <form method="post" action="{{ path('payene_maintenance_whitelist_path_remove') }}" style="display:inline">
+                            <input type="hidden" name="_token" value="{{ csrf_token('maintenance_whitelist_path_remove') }}">
+                            <input type="hidden" name="path" value="{{ path }}">
+                            <button type="submit" class="btn danger small" title="Retirer">✕</button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li class="empty">Aucun chemin whitelisté</li>
+                {% endfor %}
+            </ul>
+            <form method="post" action="{{ path('payene_maintenance_whitelist_path_add') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('maintenance_whitelist_path_add') }}">
+                <div class="row">
+                    <input type="text" name="path" placeholder="/api" required>
+                    <button type="submit" class="btn primary">Ajouter</button>
+                </div>
+                <span class="hint">Toutes les requêtes commençant par ce chemin seront autorisées.</span>
+            </form>
+        </section>
+
+        {# --------- Prévisualisation --------- #}
+        <section class="card preview-section">
+            <div class="preview-header">
+                <h2 style="margin:0; padding:0; border:none;">Prévisualisation</h2>
+                <span class="preview-note">Aperçu en direct — les modifications non enregistrées sont reflétées.</span>
+            </div>
+            <iframe id="preview-frame"
+                    class="preview-frame"
+                    src="{{ path('payene_maintenance_preview') }}"
+                    loading="lazy"
+                    title="Aperçu de la page de maintenance"></iframe>
+        </section>
+
+    </div>
+</div>
+
+<script>
+(function () {
+    const frame        = document.getElementById('preview-frame');
+    const baseUrl      = '{{ path('payene_maintenance_preview') }}';
+    const msgEl        = document.getElementById('message');
+    const overdueMsgEl = document.getElementById('overdue_message');
+    const untilEl      = document.getElementById('until');
+
+    let timer;
+
+    function refresh() {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            const params = new URLSearchParams();
+            if (msgEl.value.trim() !== '')        params.set('message',         msgEl.value);
+            if (overdueMsgEl.value.trim() !== '') params.set('overdue_message', overdueMsgEl.value);
+            if (untilEl.value.trim() !== '')      params.set('until',           untilEl.value);
+            frame.src = baseUrl + (params.toString() ? '?' + params.toString() : '');
+        }, 400);
+    }
+
+    msgEl.addEventListener('input', refresh);
+    overdueMsgEl.addEventListener('input', refresh);
+    untilEl.addEventListener('input', refresh);
+})();
+</script>
+</body>
+</html>
