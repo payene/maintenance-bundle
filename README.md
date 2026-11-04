@@ -5,7 +5,7 @@
 [![Total Downloads](https://poser.pugx.org/payene/maintenance-bundle/downloads)](https://packagist.org/packages/payene/maintenance-bundle)
 [![License](https://poser.pugx.org/payene/maintenance-bundle/license)](https://packagist.org/packages/payene/maintenance-bundle)
 
-> **Status**: v1.1.0 — Production ready.
+> **Status**: v1.1.2 — Production ready.
 
 Maintenance mode for Symfony with a web admin interface, IP allow listing, and configurable storage.
 
