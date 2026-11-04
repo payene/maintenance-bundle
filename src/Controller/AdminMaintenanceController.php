@@ -33,10 +33,10 @@ final class AdminMaintenanceController extends AbstractController
 
         if ($this->manager->isEnabled()) {
             $this->manager->disable();
-            $this->addFlash('success', 'Mode maintenance désactivé.');
+            $this->addFlash('success', 'Maintenance mode disabled.');
         } else {
             $this->manager->enable();
-            $this->addFlash('success', 'Mode maintenance activé.');
+            $this->addFlash('success', 'Maintenance mode enabled.');
         }
 
         return $this->redirectToRoute('payene_maintenance_index');
@@ -56,7 +56,7 @@ final class AdminMaintenanceController extends AbstractController
             try {
                 $until = new \DateTimeImmutable($rawUntil);
             } catch (\Exception) {
-                $this->addFlash('error', sprintf('Date invalide : "%s".', $rawUntil));
+                $this->addFlash('error', sprintf('Invalid date: "%s".', $rawUntil));
 
                 return $this->redirectToRoute('payene_maintenance_index');
             }
@@ -66,74 +66,74 @@ final class AdminMaintenanceController extends AbstractController
         $retryAfter = ($rawRetry !== null && $rawRetry !== '') ? (int) $rawRetry : 3600;
 
         $this->manager->updateSettings($until, $message, $retryAfter, $overdueMessage);
-        $this->addFlash('success', 'Paramètres enregistrés.');
+        $this->addFlash('success', 'Settings saved.');
 
         return $this->redirectToRoute('payene_maintenance_index');
     }
 
-    #[Route('/whitelist/ip/add', name: 'whitelist_ip_add', methods: ['POST'])]
-    public function addWhitelistIp(Request $request): Response
+    #[Route('/allowed/ip/add', name: 'allowed_ip_add', methods: ['POST'])]
+    public function addAllowedIp(Request $request): Response
     {
-        $this->assertCsrf($request, 'maintenance_whitelist_ip_add');
+        $this->assertCsrf($request, 'maintenance_allowed_ip_add');
 
         $ip = trim((string) $request->request->get('ip', ''));
         if ($ip === '') {
-            $this->addFlash('error', 'Adresse IP vide.');
+            $this->addFlash('error', 'IP address cannot be empty.');
 
             return $this->redirectToRoute('payene_maintenance_index');
         }
 
-        if ($this->manager->addWhitelistIp($ip)) {
-            $this->addFlash('success', sprintf('IP %s ajoutée.', $ip));
+        if ($this->manager->addAllowedIp($ip)) {
+            $this->addFlash('success', sprintf('IP %s added.', $ip));
         } else {
-            $this->addFlash('warning', sprintf('IP %s déjà présente.', $ip));
+            $this->addFlash('warning', sprintf('IP %s is already present.', $ip));
         }
 
         return $this->redirectToRoute('payene_maintenance_index');
     }
 
-    #[Route('/whitelist/ip/remove', name: 'whitelist_ip_remove', methods: ['POST'])]
-    public function removeWhitelistIp(Request $request): Response
+    #[Route('/allowed/ip/remove', name: 'allowed_ip_remove', methods: ['POST'])]
+    public function removeAllowedIp(Request $request): Response
     {
-        $this->assertCsrf($request, 'maintenance_whitelist_ip_remove');
+        $this->assertCsrf($request, 'maintenance_allowed_ip_remove');
 
         $ip = (string) $request->request->get('ip', '');
-        if ($this->manager->removeWhitelistIp($ip)) {
-            $this->addFlash('success', sprintf('IP %s retirée.', $ip));
+        if ($this->manager->removeAllowedIp($ip)) {
+            $this->addFlash('success', sprintf('IP %s removed.', $ip));
         }
 
         return $this->redirectToRoute('payene_maintenance_index');
     }
 
-    #[Route('/whitelist/path/add', name: 'whitelist_path_add', methods: ['POST'])]
-    public function addWhitelistPath(Request $request): Response
+    #[Route('/allowed/path/add', name: 'allowed_path_add', methods: ['POST'])]
+    public function addAllowedPath(Request $request): Response
     {
-        $this->assertCsrf($request, 'maintenance_whitelist_path_add');
+        $this->assertCsrf($request, 'maintenance_allowed_path_add');
 
         $path = trim((string) $request->request->get('path', ''));
         if ($path === '' || !str_starts_with($path, '/')) {
-            $this->addFlash('error', 'Le chemin doit commencer par /.');
+            $this->addFlash('error', 'Path must start with /.');
 
             return $this->redirectToRoute('payene_maintenance_index');
         }
 
-        if ($this->manager->addWhitelistPath($path)) {
-            $this->addFlash('success', sprintf('Chemin %s ajouté.', $path));
+        if ($this->manager->addAllowedPath($path)) {
+            $this->addFlash('success', sprintf('Path %s added.', $path));
         } else {
-            $this->addFlash('warning', sprintf('Chemin %s déjà présent.', $path));
+            $this->addFlash('warning', sprintf('Path %s is already present.', $path));
         }
 
         return $this->redirectToRoute('payene_maintenance_index');
     }
 
-    #[Route('/whitelist/path/remove', name: 'whitelist_path_remove', methods: ['POST'])]
-    public function removeWhitelistPath(Request $request): Response
+    #[Route('/allowed/path/remove', name: 'allowed_path_remove', methods: ['POST'])]
+    public function removeAllowedPath(Request $request): Response
     {
-        $this->assertCsrf($request, 'maintenance_whitelist_path_remove');
+        $this->assertCsrf($request, 'maintenance_allowed_path_remove');
 
         $path = (string) $request->request->get('path', '');
-        if ($this->manager->removeWhitelistPath($path)) {
-            $this->addFlash('success', sprintf('Chemin %s retiré.', $path));
+        if ($this->manager->removeAllowedPath($path)) {
+            $this->addFlash('success', sprintf('Path %s removed.', $path));
         }
 
         return $this->redirectToRoute('payene_maintenance_index');
@@ -144,7 +144,7 @@ final class AdminMaintenanceController extends AbstractController
     {
         $state = $this->manager->getState();
 
-        // Override live via query params (pour l'aperçu temps réel)
+        // Live override via query params (for real-time preview)
         $message = $request->query->has('message')
             ? trim((string) $request->query->get('message'))
             : $state->message;
@@ -181,7 +181,7 @@ final class AdminMaintenanceController extends AbstractController
     private function assertCsrf(Request $request, string $tokenId): void
     {
         if (!$this->isCsrfTokenValid($tokenId, (string) $request->request->get('_token'))) {
-            throw $this->createAccessDeniedException('Token CSRF invalide.');
+            throw $this->createAccessDeniedException('Invalid CSRF token.');
         }
     }
 }

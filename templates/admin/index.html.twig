@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
-    <title>Mode maintenance — Administration</title>
+    <title>Maintenance Mode — Administration</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -196,19 +196,19 @@
 
     <header class="page">
         <div style="display:flex; align-items:center; gap:1rem;">
-            <h1>Mode maintenance</h1>
+            <h1>Maintenance Mode</h1>
             {% if state.enabled %}
-                <span class="badge on">● Activé</span>
+                <span class="badge on">● Enabled</span>
             {% else %}
-                <span class="badge off">● Désactivé</span>
+                <span class="badge off">● Disabled</span>
             {% endif %}
         </div>
         <form method="post" action="{{ path('payene_maintenance_toggle') }}">
             <input type="hidden" name="_token" value="{{ csrf_token('maintenance_toggle') }}">
             {% if state.enabled %}
-                <button type="submit" class="btn success">Désactiver la maintenance</button>
+                <button type="submit" class="btn success">Disable Maintenance</button>
             {% else %}
-                <button type="submit" class="btn danger">Activer la maintenance</button>
+                <button type="submit" class="btn danger">Enable Maintenance</button>
             {% endif %}
         </form>
     </header>
@@ -221,109 +221,109 @@
 
     <div class="grid">
 
-        {# --------- Paramètres --------- #}
+        {# --------- Settings --------- #}
         <section class="card">
-            <h2>Paramètres de la page</h2>
+            <h2>Page Settings</h2>
             <form method="post" action="{{ path('payene_maintenance_settings') }}" id="settings-form">
                 <input type="hidden" name="_token" value="{{ csrf_token('maintenance_settings') }}">
 
                 <div class="field">
-                    <label for="message">Message affiché</label>
+                    <label for="message">Displayed Message</label>
                     <textarea id="message" name="message"
-                        placeholder="Notre équipe effectue une mise à jour pour améliorer votre expérience.">{{ state.message }}</textarea>
-                    <span class="hint">Laissez vide pour utiliser le message par défaut du template.</span>
+                        placeholder="Our team is currently performing an update to improve your experience.">{{ state.message }}</textarea>
+                    <span class="hint">Leave empty to use the default template message.</span>
                 </div>
 
                 <div class="field">
-                    <label for="overdue_message">Message si la maintenance dépasse l'heure prévue</label>
+                    <label for="overdue_message">Overdue Message</label>
                     <textarea id="overdue_message" name="overdue_message"
-                        placeholder="La maintenance prend un peu plus de temps que prévu. Merci de votre patience.">{{ state.overdueMessage }}</textarea>
-                    <span class="hint">Affiché une fois la date de fin dépassée.</span>
+                        placeholder="The maintenance is taking longer than expected. Thank you for your patience.">{{ state.overdueMessage }}</textarea>
+                    <span class="hint">Displayed once the end date has passed.</span>
                 </div>
 
                 <div class="field">
-                    <label for="until">Fin de maintenance (optionnel)</label>
+                    <label for="until">Maintenance End (optional)</label>
                     <input type="text" id="until" name="until"
                         value="{{ state.until ? state.until|date('Y-m-d H:i:s') : '' }}"
-                        placeholder="+2 hours ou 2026-10-30 18:00">
-                    <span class="hint">Formats : <code>+2 hours</code>, <code>+1 day</code>, <code>2026-10-30 18:00</code>.</span>
+                        placeholder="+2 hours or 2026-10-30 18:00">
+                    <span class="hint">Formats: <code>+2 hours</code>, <code>+1 day</code>, <code>2026-10-30 18:00</code>.</span>
                 </div>
 
                 <div class="field">
-                    <label for="retry_after">Retry-After (secondes)</label>
+                    <label for="retry_after">Retry-After (seconds)</label>
                     <input type="number" id="retry_after" name="retry_after"
                         value="{{ state.retryAfter }}" min="0" step="1">
-                    <span class="hint">Indique aux navigateurs quand réessayer.</span>
+                    <span class="hint">Tells browsers when to try again.</span>
                 </div>
 
-                <button type="submit" class="btn primary">Enregistrer</button>
+                <button type="submit" class="btn primary">Save</button>
             </form>
         </section>
 
-        {# --------- Whitelist --------- #}
+        {# --------- Allow List --------- #}
         <section class="card">
-            <h2>Whitelist</h2>
+            <h2>Allow List</h2>
 
-            <h3>Adresses IP</h3>
+            <h3>IP Addresses</h3>
             <ul class="items">
-                {% for ip in state.whitelistIps %}
+                {% for ip in state.allowedIps %}
                     <li>
                         <span>{{ ip }}</span>
-                        <form method="post" action="{{ path('payene_maintenance_whitelist_ip_remove') }}" style="display:inline">
-                            <input type="hidden" name="_token" value="{{ csrf_token('maintenance_whitelist_ip_remove') }}">
+                        <form method="post" action="{{ path('payene_maintenance_allowed_ip_remove') }}" style="display:inline">
+                            <input type="hidden" name="_token" value="{{ csrf_token('maintenance_allowed_ip_remove') }}">
                             <input type="hidden" name="ip" value="{{ ip }}">
-                            <button type="submit" class="btn danger small" title="Retirer">✕</button>
+                            <button type="submit" class="btn danger small" title="Remove">✕</button>
                         </form>
                     </li>
                 {% else %}
-                    <li class="empty">Aucune IP whitelistée</li>
+                    <li class="empty">No allowed IPs</li>
                 {% endfor %}
             </ul>
-            <form method="post" action="{{ path('payene_maintenance_whitelist_ip_add') }}">
-                <input type="hidden" name="_token" value="{{ csrf_token('maintenance_whitelist_ip_add') }}">
+            <form method="post" action="{{ path('payene_maintenance_allowed_ip_add') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('maintenance_allowed_ip_add') }}">
                 <div class="row">
-                    <input type="text" name="ip" placeholder="192.168.1.42 ou 10.0.0.0/8" required>
-                    <button type="submit" class="btn primary">Ajouter</button>
+                    <input type="text" name="ip" placeholder="192.168.1.42 or 10.0.0.0/8" required>
+                    <button type="submit" class="btn primary">Add</button>
                 </div>
-                <span class="hint">Support des plages CIDR (<code>192.168.0.0/16</code>).</span>
+                <span class="hint">Supports CIDR ranges (<code>192.168.0.0/16</code>).</span>
             </form>
 
-            <h3>Chemins whitelistés</h3>
+            <h3>Allowed Paths</h3>
             <ul class="items">
-                {% for path in state.whitelistPaths %}
+                {% for path in state.allowedPaths %}
                     <li>
                         <span>{{ path }}</span>
-                        <form method="post" action="{{ path('payene_maintenance_whitelist_path_remove') }}" style="display:inline">
-                            <input type="hidden" name="_token" value="{{ csrf_token('maintenance_whitelist_path_remove') }}">
+                        <form method="post" action="{{ path('payene_maintenance_allowed_path_remove') }}" style="display:inline">
+                            <input type="hidden" name="_token" value="{{ csrf_token('maintenance_allowed_path_remove') }}">
                             <input type="hidden" name="path" value="{{ path }}">
-                            <button type="submit" class="btn danger small" title="Retirer">✕</button>
+                            <button type="submit" class="btn danger small" title="Remove">✕</button>
                         </form>
                     </li>
                 {% else %}
-                    <li class="empty">Aucun chemin whitelisté</li>
+                    <li class="empty">No allowed paths</li>
                 {% endfor %}
             </ul>
-            <form method="post" action="{{ path('payene_maintenance_whitelist_path_add') }}">
-                <input type="hidden" name="_token" value="{{ csrf_token('maintenance_whitelist_path_add') }}">
+            <form method="post" action="{{ path('payene_maintenance_allowed_path_add') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('maintenance_allowed_path_add') }}">
                 <div class="row">
                     <input type="text" name="path" placeholder="/api" required>
-                    <button type="submit" class="btn primary">Ajouter</button>
+                    <button type="submit" class="btn primary">Add</button>
                 </div>
-                <span class="hint">Toutes les requêtes commençant par ce chemin seront autorisées.</span>
+                <span class="hint">All requests starting with this path will be allowed.</span>
             </form>
         </section>
 
-        {# --------- Prévisualisation --------- #}
+        {# --------- Preview --------- #}
         <section class="card preview-section">
             <div class="preview-header">
-                <h2 style="margin:0; padding:0; border:none;">Prévisualisation</h2>
-                <span class="preview-note">Aperçu en direct — les modifications non enregistrées sont reflétées.</span>
+                <h2 style="margin:0; padding:0; border:none;">Preview</h2>
+                <span class="preview-note">Live preview — unsaved changes are reflected.</span>
             </div>
             <iframe id="preview-frame"
                     class="preview-frame"
                     src="{{ path('payene_maintenance_preview') }}"
                     loading="lazy"
-                    title="Aperçu de la page de maintenance"></iframe>
+                    title="Maintenance page preview"></iframe>
         </section>
 
     </div>

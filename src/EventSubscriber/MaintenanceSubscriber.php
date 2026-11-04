@@ -42,21 +42,21 @@ final class MaintenanceSubscriber implements EventSubscriberInterface
         $ip      = $request->getClientIp();
         $path    = $request->getPathInfo();
 
-        // Garde-fou : l'interface d'administration reste toujours accessible
+        // Safeguard: the admin interface remains always accessible
         if (str_starts_with($path, $this->panelPath)) {
             $this->logger->debug('Maintenance: admin panel bypass', ['path' => $path]);
 
             return;
         }
 
-        if ($state->isIpWhitelisted($ip)) {
-            $this->logger->debug('Maintenance: IP whitelisted', ['ip' => $ip]);
+        if ($state->isIpAllowed($ip)) {
+            $this->logger->debug('Maintenance: IP allowed', ['ip' => $ip]);
 
             return;
         }
 
-        if ($state->isPathWhitelisted($path)) {
-            $this->logger->debug('Maintenance: path whitelisted', ['path' => $path]);
+        if ($state->isPathAllowed($path)) {
+            $this->logger->debug('Maintenance: path allowed', ['path' => $path]);
 
             return;
         }

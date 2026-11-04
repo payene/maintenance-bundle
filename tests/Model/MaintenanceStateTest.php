@@ -19,8 +19,8 @@ final class MaintenanceStateTest extends TestCase
         self::assertNull($state->message);
         self::assertNull($state->overdueMessage);
         self::assertSame(3600, $state->retryAfter);
-        self::assertSame(['127.0.0.1', '::1'], $state->whitelistIps);
-        self::assertSame(['/health'], $state->whitelistPaths);
+        self::assertSame(['127.0.0.1', '::1'], $state->allowedIps);
+        self::assertSame(['/health'], $state->allowedPaths);
     }
 
     public function testWithEnabledReturnsNewInstance(): void
@@ -49,12 +49,12 @@ final class MaintenanceStateTest extends TestCase
         self::assertSame(600, $updated->retryAfter);
     }
 
-    public function testWithWhitelistIpsReindexesArray(): void
+    public function testWithAllowedIpsReindexesArray(): void
     {
-        $state = new MaintenanceState(whitelistIps: ['a' => '10.0.0.1', 'b' => '10.0.0.2']);
-        $updated = $state->withWhitelistIps(['10.0.0.3']);
+        $state = new MaintenanceState(allowedIps: ['a' => '10.0.0.1', 'b' => '10.0.0.2']);
+        $updated = $state->withAllowedIps(['10.0.0.3']);
 
-        self::assertSame(['10.0.0.3'], $updated->whitelistIps);
+        self::assertSame(['10.0.0.3'], $updated->allowedIps);
     }
 
     public function testIsOverdueReturnsFalseWhenNoUntil(): void
@@ -95,74 +95,74 @@ final class MaintenanceStateTest extends TestCase
         self::assertTrue($state->isOverdue('2026-06-01 13:00:00'));
     }
 
-    public function testIsIpWhitelistedReturnsFalseForNullIp(): void
+    public function testIsIpAllowedReturnsFalseForNullIp(): void
     {
         $state = new MaintenanceState();
 
-        self::assertFalse($state->isIpWhitelisted(null));
+        self::assertFalse($state->isIpAllowed(null));
     }
 
-    public function testIsIpWhitelistedHandlesExactIp(): void
+    public function testIsIpAllowedHandlesExactIp(): void
     {
-        $state = new MaintenanceState(whitelistIps: ['192.168.1.42']);
+        $state = new MaintenanceState(allowedIps: ['192.168.1.42']);
 
-        self::assertTrue($state->isIpWhitelisted('192.168.1.42'));
-        self::assertFalse($state->isIpWhitelisted('192.168.1.43'));
+        self::assertTrue($state->isIpAllowed('192.168.1.42'));
+        self::assertFalse($state->isIpAllowed('192.168.1.43'));
     }
 
-    public function testIsIpWhitelistedHandlesCidr(): void
+    public function testIsIpAllowedHandlesCidr(): void
     {
-        $state = new MaintenanceState(whitelistIps: ['192.168.1.0/24']);
+        $state = new MaintenanceState(allowedIps: ['192.168.1.0/24']);
 
-        self::assertTrue($state->isIpWhitelisted('192.168.1.42'));
-        self::assertTrue($state->isIpWhitelisted('192.168.1.255'));
-        self::assertFalse($state->isIpWhitelisted('192.168.2.1'));
+        self::assertTrue($state->isIpAllowed('192.168.1.42'));
+        self::assertTrue($state->isIpAllowed('192.168.1.255'));
+        self::assertFalse($state->isIpAllowed('192.168.2.1'));
     }
 
-    public function testIsIpWhitelistedHandlesIpv6Loopback(): void
+    public function testIsIpAllowedHandlesIpv6Loopback(): void
     {
-        $state = new MaintenanceState(whitelistIps: ['::1']);
+        $state = new MaintenanceState(allowedIps: ['::1']);
 
-        self::assertTrue($state->isIpWhitelisted('::1'));
+        self::assertTrue($state->isIpAllowed('::1'));
     }
 
-    public function testIsPathWhitelistedUsesPrefixMatch(): void
+    public function testIsPathAllowedUsesPrefixMatch(): void
     {
-        $state = new MaintenanceState(whitelistPaths: ['/api', '/health']);
+        $state = new MaintenanceState(allowedPaths: ['/api', '/health']);
 
-        self::assertTrue($state->isPathWhitelisted('/api'));
-        self::assertTrue($state->isPathWhitelisted('/api/'));
-        self::assertTrue($state->isPathWhitelisted('/api/users'));
-        self::assertTrue($state->isPathWhitelisted('/health'));
-        self::assertFalse($state->isPathWhitelisted('/admin'));
+        self::assertTrue($state->isPathAllowed('/api'));
+        self::assertTrue($state->isPathAllowed('/api/'));
+        self::assertTrue($state->isPathAllowed('/api/users'));
+        self::assertTrue($state->isPathAllowed('/health'));
+        self::assertFalse($state->isPathAllowed('/admin'));
     }
 
-    public function testIsPathWhitelistedDoesNotMatchPartialSegments(): void
+    public function testIsPathAllowedDoesNotMatchPartialSegments(): void
     {
-        $state = new MaintenanceState(whitelistPaths: ['/api']);
+        $state = new MaintenanceState(allowedPaths: ['/api']);
 
-        // Aucun de ces chemins ne doit être whitelisté par "/api"
-        self::assertFalse($state->isPathWhitelisted('/apixyz'));
-        self::assertFalse($state->isPathWhitelisted('/api-v2'));
-        self::assertFalse($state->isPathWhitelisted('/apiadmin'));
-        self::assertFalse($state->isPathWhitelisted('/api2'));
+        // Aucun de ces chemins ne doit être autorisé par "/api"
+        self::assertFalse($state->isPathAllowed('/apixyz'));
+        self::assertFalse($state->isPathAllowed('/api-v2'));
+        self::assertFalse($state->isPathAllowed('/apiadmin'));
+        self::assertFalse($state->isPathAllowed('/api2'));
     }
 
-    public function testIsPathWhitelistedWithTrailingSlashInPattern(): void
+    public function testIsPathAllowedWithTrailingSlashInPattern(): void
     {
-        $state = new MaintenanceState(whitelistPaths: ['/api/']);
+        $state = new MaintenanceState(allowedPaths: ['/api/']);
 
-        self::assertTrue($state->isPathWhitelisted('/api'));
-        self::assertTrue($state->isPathWhitelisted('/api/users'));
-        self::assertFalse($state->isPathWhitelisted('/apixyz'));
+        self::assertTrue($state->isPathAllowed('/api'));
+        self::assertTrue($state->isPathAllowed('/api/users'));
+        self::assertFalse($state->isPathAllowed('/apixyz'));
     }
 
-    public function testIsPathWhitelistedRootMatchesEverything(): void
+    public function testIsPathAllowedRootMatchesEverything(): void
     {
-        $state = new MaintenanceState(whitelistPaths: ['/']);
+        $state = new MaintenanceState(allowedPaths: ['/']);
 
-        self::assertTrue($state->isPathWhitelisted('/'));
-        self::assertTrue($state->isPathWhitelisted('/api'));
-        self::assertTrue($state->isPathWhitelisted('/anything/else'));
+        self::assertTrue($state->isPathAllowed('/'));
+        self::assertTrue($state->isPathAllowed('/api'));
+        self::assertTrue($state->isPathAllowed('/anything/else'));
     }
 }

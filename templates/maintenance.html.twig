@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
-    <title>{% block title %}Maintenance en cours{% endblock %}</title>
+    <title>{% block title %}Under Maintenance{% endblock %}</title>
     <style>
         {% block styles %}
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -192,7 +192,7 @@
     <div class="container">
         <div class="card">
             {% block badge %}
-                <span class="badge">Maintenance en cours</span>
+                <span class="badge">Under Maintenance</span>
             {% endblock %}
 
             {% block header %}
@@ -202,24 +202,24 @@
                     <circle cx="12" cy="12" r="3"/>
                     <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
                 </svg>
-                <h1>Nous revenons très vite</h1>
+                <h1>We will be back soon</h1>
             {% endblock %}
 
             {% block content %}
                 {% if overdue %}
                     {% block overdue %}
                         <div class="overdue-notice">
-                            {{ overdue_message|default("La maintenance prend un peu plus de temps que prévu.\nNous finalisons les derniers ajustements — merci de votre patience.")|nl2br }}
+                            {{ overdue_message|default("The maintenance is taking longer than expected.\nWe are finalizing the last adjustments — thank you for your patience.")|nl2br }}
                         </div>
                         <p class="retry-hint">
-                            Cette page se rafraîchira automatiquement dans
+                            This page will automatically refresh in
                             <strong id="retry-seconds">60</strong> s.
                         </p>
                     {% endblock %}
                 {% else %}
                     {% block message %}
                         <p class="message">
-                            {{ message|default("Notre équipe effectue actuellement une mise à jour pour améliorer votre expérience. Merci de votre patience.")|nl2br }}
+                            {{ message|default("Our team is currently performing an update to improve your experience. Thank you for your patience.")|nl2br }}
                         </p>
                     {% endblock %}
 
@@ -228,7 +228,7 @@
                             <div class="countdown" id="countdown" data-until="{{ until|date('c') }}">
                                 <div class="countdown-item">
                                     <div class="countdown-value" data-unit="hours">--</div>
-                                    <div class="countdown-label">Heures</div>
+                                    <div class="countdown-label">Hours</div>
                                 </div>
                                 <div class="countdown-item">
                                     <div class="countdown-value" data-unit="minutes">--</div>
@@ -236,7 +236,7 @@
                                 </div>
                                 <div class="countdown-item">
                                     <div class="countdown-value" data-unit="seconds">--</div>
-                                    <div class="countdown-label">Secondes</div>
+                                    <div class="countdown-label">Seconds</div>
                                 </div>
                             </div>
                         {% endif %}
@@ -246,7 +246,7 @@
 
             {% block footer %}
                 <div class="footer">
-                    <p>Merci de votre patience.</p>
+                    <p>Thank you for your patience.</p>
                 </div>
             {% endblock %}
         </div>
@@ -258,7 +258,7 @@
     (function () {
         'use strict';
 
-        // Cas 1 : maintenance dépassée → reload unique toutes les 60s
+        // Case 1: Overdue maintenance -> single reload every 60s
         var retryEl = document.getElementById('retry-seconds');
         if (retryEl) {
             var remaining = 60;
@@ -276,7 +276,7 @@
             return;
         }
 
-        // Cas 2 : compte à rebours normal
+        // Case 2: Normal countdown
         var el = document.getElementById('countdown');
         if (!el) {
             return;

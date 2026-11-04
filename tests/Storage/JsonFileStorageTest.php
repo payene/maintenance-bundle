@@ -33,7 +33,7 @@ final class JsonFileStorageTest extends TestCase
         $state = $storage->load();
 
         self::assertFalse($state->enabled);
-        self::assertSame(['127.0.0.1', '::1'], $state->whitelistIps);
+        self::assertSame(['127.0.0.1', '::1'], $state->allowedIps);
     }
 
     public function testLoadReturnsDefaultStateWhenFileIsCorrupted(): void
@@ -68,8 +68,8 @@ final class JsonFileStorageTest extends TestCase
             message: 'Test message',
             overdueMessage: 'Overdue',
             retryAfter: 600,
-            whitelistIps: ['10.0.0.1', '10.0.0.2'],
-            whitelistPaths: ['/api', '/health'],
+            allowedIps: ['10.0.0.1', '10.0.0.2'],
+            allowedPaths: ['/api', '/health'],
         );
 
         $storage->save($original);
@@ -81,8 +81,8 @@ final class JsonFileStorageTest extends TestCase
         self::assertSame('Test message', $loaded->message);
         self::assertSame('Overdue', $loaded->overdueMessage);
         self::assertSame(600, $loaded->retryAfter);
-        self::assertSame(['10.0.0.1', '10.0.0.2'], $loaded->whitelistIps);
-        self::assertSame(['/api', '/health'], $loaded->whitelistPaths);
+        self::assertSame(['10.0.0.1', '10.0.0.2'], $loaded->allowedIps);
+        self::assertSame(['/api', '/health'], $loaded->allowedPaths);
     }
 
     public function testLoadToleratesMissingKeys(): void
@@ -128,5 +128,22 @@ final class JsonFileStorageTest extends TestCase
         $second = file_get_contents($path);
 
         self::assertSame($first, $second);
+    }
+    
+    public function testLoadHandlesLegacyWhitelistKeys(): void
+    {
+        mkdir($this->tmpDir);
+        file_put_contents($this->tmpDir . '/state.json', json_encode([
+            'enabled' => true,
+            'whitelist_ips' => ['192.168.1.1'],
+            'whitelist_paths' => ['/legacy'],
+        ]));
+
+        $storage = new JsonFileStorage($this->tmpDir . '/state.json');
+        $state = $storage->load();
+
+        self::assertTrue($state->enabled);
+        self::assertSame(['192.168.1.1'], $state->allowedIps);
+        self::assertSame(['/legacy'], $state->allowedPaths);
     }
 }

@@ -64,68 +64,68 @@ final class MaintenanceManager
         );
     }
 
-    public function addWhitelistIp(string $ip): bool
+    public function addAllowedIp(string $ip): bool
     {
         $state = $this->storage->load();
 
-        if (\in_array($ip, $state->whitelistIps, true)) {
+        if (\in_array($ip, $state->allowedIps, true)) {
             return false;
         }
 
         $this->storage->save(
-            $state->withWhitelistIps([...$state->whitelistIps, $ip])
+            $state->withAllowedIps([...$state->allowedIps, $ip])
         );
 
         return true;
     }
 
-    public function removeWhitelistIp(string $ip): bool
+    public function removeAllowedIp(string $ip): bool
     {
         $state = $this->storage->load();
 
-        if (!\in_array($ip, $state->whitelistIps, true)) {
+        if (!\in_array($ip, $state->allowedIps, true)) {
             return false;
         }
 
         $remaining = array_values(array_filter(
-            $state->whitelistIps,
+            $state->allowedIps,
             static fn (string $allowed): bool => $allowed !== $ip,
         ));
 
-        $this->storage->save($state->withWhitelistIps($remaining));
+        $this->storage->save($state->withAllowedIps($remaining));
 
         return true;
     }
 
-    public function addWhitelistPath(string $path): bool
+    public function addAllowedPath(string $path): bool
     {
         $state = $this->storage->load();
 
-        if (\in_array($path, $state->whitelistPaths, true)) {
+        if (\in_array($path, $state->allowedPaths, true)) {
             return false;
         }
 
         $this->storage->save(
-            $state->withWhitelistPaths([...$state->whitelistPaths, $path])
+            $state->withAllowedPaths([...$state->allowedPaths, $path])
         );
 
         return true;
     }
 
-    public function removeWhitelistPath(string $path): bool
+    public function removeAllowedPath(string $path): bool
     {
         $state = $this->storage->load();
 
-        if (!\in_array($path, $state->whitelistPaths, true)) {
+        if (!\in_array($path, $state->allowedPaths, true)) {
             return false;
         }
 
         $remaining = array_values(array_filter(
-            $state->whitelistPaths,
+            $state->allowedPaths,
             static fn (string $allowed): bool => $allowed !== $path,
         ));
 
-        $this->storage->save($state->withWhitelistPaths($remaining));
+        $this->storage->save($state->withAllowedPaths($remaining));
 
         return true;
     }

@@ -46,14 +46,14 @@ final class SubscriberTest extends TestCase
         self::assertNull($event->getResponse());
     }
 
-    public function testBlocksWhenEnabledAndNotWhitelisted(): void
+    public function testBlocksWhenEnabledAndNotAllowed(): void
     {
         $event = $this->createEvent('https://example.com/', '8.8.8.8');
 
         $this->createSubscriber(new MaintenanceState(
             enabled: true,
-            whitelistIps: ['10.0.0.1'],
-            whitelistPaths: [],
+            allowedIps: ['10.0.0.1'],
+            allowedPaths: [],
         ))->onMaintenance($event);
 
         $response = $event->getResponse();
@@ -62,27 +62,27 @@ final class SubscriberTest extends TestCase
         self::assertSame('3600', $response->headers->get('Retry-After'));
     }
 
-    public function testBypassWhitelistedIp(): void
+    public function testBypassAllowedIp(): void
     {
         $event = $this->createEvent('https://example.com/', '8.8.8.8');
 
         $this->createSubscriber(new MaintenanceState(
             enabled: true,
-            whitelistIps: ['8.8.8.8'],
-            whitelistPaths: [],
+            allowedIps: ['8.8.8.8'],
+            allowedPaths: [],
         ))->onMaintenance($event);
 
         self::assertNull($event->getResponse());
     }
 
-    public function testBypassWhitelistedPath(): void
+    public function testBypassAllowedPath(): void
     {
         $event = $this->createEvent('https://example.com/health', '8.8.8.8');
 
         $this->createSubscriber(new MaintenanceState(
             enabled: true,
-            whitelistIps: [],
-            whitelistPaths: ['/health'],
+            allowedIps: [],
+            allowedPaths: ['/health'],
         ))->onMaintenance($event);
 
         self::assertNull($event->getResponse());
@@ -94,8 +94,8 @@ final class SubscriberTest extends TestCase
 
         $this->createSubscriber(new MaintenanceState(
             enabled: true,
-            whitelistIps: [],
-            whitelistPaths: [],
+            allowedIps: [],
+            allowedPaths: [],
         ))->onMaintenance($event);
 
         self::assertNull($event->getResponse());
@@ -108,8 +108,8 @@ final class SubscriberTest extends TestCase
         $this->createSubscriber(new MaintenanceState(
             enabled: true,
             retryAfter: 900,
-            whitelistIps: [],
-            whitelistPaths: [],
+            allowedIps: [],
+            allowedPaths: [],
         ))->onMaintenance($event);
 
         self::assertSame('900', $event->getResponse()?->headers->get('Retry-After'));

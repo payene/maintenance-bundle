@@ -5,9 +5,9 @@
 [![Total Downloads](https://poser.pugx.org/payene/maintenance-bundle/downloads)](https://packagist.org/packages/payene/maintenance-bundle)
 [![License](https://poser.pugx.org/payene/maintenance-bundle/license)](https://packagist.org/packages/payene/maintenance-bundle)
 
-> **Status**: v1.0.0 — Production ready.
+> **Status**: v1.1.0 — Production ready.
 
-Maintenance mode for Symfony with a web admin interface, IP whitelisting, and configurable storage.
+Maintenance mode for Symfony with a web admin interface, IP allow listing, and configurable storage.
 
 ## Table of Contents
 
@@ -28,7 +28,7 @@ Maintenance mode for Symfony with a web admin interface, IP whitelisting, and co
 - ✅ **HTTP 503 Response** with a proper `Retry-After` header
 - ✅ **Customizable messages** + dedicated message for when maintenance takes longer than expected
 - ✅ **Real-time countdown** with clean "overdue" handling (no page flickering)
-- ✅ **IP whitelisting** (with CIDR support) and **path whitelisting**
+- ✅ **IP allow listing** (with CIDR support) and **path allow listing**
 - ✅ **Admin interface** with **live preview**
 - ✅ **Overridable templates** using standard Symfony conventions
 - ✅ **Configurable storage**: JSON (default) or any cache pool (Redis, Memcached, Doctrine)
@@ -112,7 +112,7 @@ Navigate to `/admin/maintenance`. From there, you can:
 
 - Enable / disable maintenance with one click
 - Edit the main message, overdue message, end date, and Retry-After header
-- Manage whitelisted IPs and paths
+- Manage allowed IPs and paths
 - **Live preview** of what visitors will see
 
 ## Template Override
@@ -258,17 +258,17 @@ final class MyService
 }
 ```
 
-### Whitelisted Paths: Exact Behavior
+### Allowed Paths: Exact Behavior
 
-A whitelisted path `/api` allows:
+An allowed path `/api` permits:
 
 - ✅ `/api` (exact match)
 - ✅ `/api/` (with trailing slash)
 - ✅ `/api/users` (prefix with full segment)
-- ❌ `/apixyz` (different segment, **not** whitelisted)
-- ❌ `/api-v2` (different segment, **not** whitelisted)
+- ❌ `/apixyz` (different segment, **not** allowed)
+- ❌ `/api-v2` (different segment, **not** allowed)
 
-To whitelist multiple paths, add them one by one. To whitelist everything, use `/`.
+To allow multiple paths, add them one by one. To allow everything, use `/`.
 
 ## Tests
 

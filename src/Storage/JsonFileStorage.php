@@ -35,7 +35,7 @@ final class JsonFileStorage implements MaintenanceStorageInterface
     {
         $dir = \dirname($this->path);
         if (!is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) {
-            throw new \RuntimeException(sprintf('Impossible de créer le dossier "%s".', $dir));
+            throw new \RuntimeException(sprintf('Unable to create directory "%s".', $dir));
         }
 
         $payload = json_encode(
@@ -44,16 +44,20 @@ final class JsonFileStorage implements MaintenanceStorageInterface
         );
 
         if ($payload === false) {
-            throw new \RuntimeException('Échec de l\'encodage JSON de l\'état de maintenance.');
+            throw new \RuntimeException('Failed to encode maintenance state to JSON.');
         }
 
         if (file_put_contents($this->path, $payload, \LOCK_EX) === false) {
-            throw new \RuntimeException(sprintf('Impossible d\'écrire le fichier "%s".', $this->path));
+            throw new \RuntimeException(sprintf('Unable to write file "%s".', $this->path));
         }
     }
 
     private function hydrate(array $data): MaintenanceState
     {
+        // Backward compatibility: fallback to 'whitelist_ips' for v1.0.0 files
+        $allowedIps = $data['allowed_ips'] ?? $data['whitelist_ips'] ?? ['127.0.0.1', '::1'];
+        $allowedPaths = $data['allowed_paths'] ?? $data['whitelist_paths'] ?? ['/health'];
+
         return new MaintenanceState(
             enabled:        (bool) ($data['enabled'] ?? false),
             since:          $this->parseDate($data['since']           ?? null),
@@ -61,12 +65,8 @@ final class JsonFileStorage implements MaintenanceStorageInterface
             message:        isset($data['message'])         ? (string) $data['message']         : null,
             overdueMessage: isset($data['overdue_message']) ? (string) $data['overdue_message'] : null,
             retryAfter:     (int) ($data['retry_after'] ?? 3600),
-            whitelistIps:   isset($data['whitelist_ips'])   && \is_array($data['whitelist_ips'])
-                ? array_values(array_map('strval', $data['whitelist_ips']))
-                : ['127.0.0.1', '::1'],
-            whitelistPaths: isset($data['whitelist_paths']) && \is_array($data['whitelist_paths'])
-                ? array_values(array_map('strval', $data['whitelist_paths']))
-                : ['/health'],
+            allowedIps:     is_array($allowedIps) ? array_values(array_map('strval', $allowedIps)) : ['127.0.0.1', '::1'],
+            allowedPaths:   is_array($allowedPaths) ? array_values(array_map('strval', $allowedPaths)) : ['/health'],
         );
     }
 
@@ -79,8 +79,8 @@ final class JsonFileStorage implements MaintenanceStorageInterface
             'message'         => $state->message,
             'overdue_message' => $state->overdueMessage,
             'retry_after'     => $state->retryAfter,
-            'whitelist_ips'   => $state->whitelistIps,
-            'whitelist_paths' => $state->whitelistPaths,
+            'allowed_ips'     => $state->allowedIps,
+            'allowed_paths'   => $state->allowedPaths,
         ];
     }
 

@@ -29,8 +29,8 @@ final class CacheStorageTest extends TestCase
             until: new \DateTimeImmutable('2026-10-29 14:00:00'),
             message: 'Cache test',
             retryAfter: 300,
-            whitelistIps: ['10.0.0.1'],
-            whitelistPaths: ['/api'],
+            allowedIps: ['10.0.0.1'],
+            allowedPaths: ['/api'],
         );
 
         $storage->save($original);
@@ -39,8 +39,8 @@ final class CacheStorageTest extends TestCase
         self::assertTrue($loaded->enabled);
         self::assertSame('Cache test', $loaded->message);
         self::assertSame(300, $loaded->retryAfter);
-        self::assertSame(['10.0.0.1'], $loaded->whitelistIps);
-        self::assertSame(['/api'], $loaded->whitelistPaths);
+        self::assertSame(['10.0.0.1'], $loaded->allowedIps);
+        self::assertSame(['/api'], $loaded->allowedPaths);
     }
 
     public function testLoadReturnsDefaultStateWhenCacheContainsInvalidData(): void

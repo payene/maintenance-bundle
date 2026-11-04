@@ -39,6 +39,10 @@ final class CacheStorage implements MaintenanceStorageInterface
 
     private function hydrate(array $data): MaintenanceState
     {
+        // Backward compatibility: fallback to 'whitelist_ips' for v1.0.0 data
+        $allowedIps = $data['allowed_ips'] ?? $data['whitelist_ips'] ?? ['127.0.0.1', '::1'];
+        $allowedPaths = $data['allowed_paths'] ?? $data['whitelist_paths'] ?? ['/health'];
+
         return new MaintenanceState(
             enabled:        (bool) ($data['enabled'] ?? false),
             since:          $this->parseDate($data['since'] ?? null),
@@ -46,12 +50,8 @@ final class CacheStorage implements MaintenanceStorageInterface
             message:        isset($data['message'])         ? (string) $data['message']         : null,
             overdueMessage: isset($data['overdue_message']) ? (string) $data['overdue_message'] : null,
             retryAfter:     (int) ($data['retry_after'] ?? 3600),
-            whitelistIps:   isset($data['whitelist_ips'])   && \is_array($data['whitelist_ips'])
-                ? array_values(array_map('strval', $data['whitelist_ips']))
-                : ['127.0.0.1', '::1'],
-            whitelistPaths: isset($data['whitelist_paths']) && \is_array($data['whitelist_paths'])
-                ? array_values(array_map('strval', $data['whitelist_paths']))
-                : ['/health'],
+            allowedIps:     is_array($allowedIps) ? array_values(array_map('strval', $allowedIps)) : ['127.0.0.1', '::1'],
+            allowedPaths:   is_array($allowedPaths) ? array_values(array_map('strval', $allowedPaths)) : ['/health'],
         );
     }
 
@@ -64,8 +64,8 @@ final class CacheStorage implements MaintenanceStorageInterface
             'message'         => $state->message,
             'overdue_message' => $state->overdueMessage,
             'retry_after'     => $state->retryAfter,
-            'whitelist_ips'   => $state->whitelistIps,
-            'whitelist_paths' => $state->whitelistPaths,
+            'allowed_ips'     => $state->allowedIps,
+            'allowed_paths'   => $state->allowedPaths,
         ];
     }
 

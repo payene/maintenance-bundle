@@ -64,8 +64,8 @@ final class MaintenanceManagerTest extends TestCase
         $storage = $this->createInMemoryStorage(
             new MaintenanceState(
                 enabled: true,
-                whitelistIps: ['10.0.0.1'],
-                whitelistPaths: ['/api'],
+                allowedIps: ['10.0.0.1'],
+                allowedPaths: ['/api'],
             ),
         );
         $manager = new MaintenanceManager($storage);
@@ -81,95 +81,95 @@ final class MaintenanceManagerTest extends TestCase
         self::assertSame('New message', $state->message);
         self::assertSame(600, $state->retryAfter);
         self::assertSame('New overdue', $state->overdueMessage);
-        self::assertSame(['10.0.0.1'], $state->whitelistIps);
-        self::assertSame(['/api'], $state->whitelistPaths);
+        self::assertSame(['10.0.0.1'], $state->allowedIps);
+        self::assertSame(['/api'], $state->allowedPaths);
     }
 
-    public function testAddWhitelistIpReturnsTrueOnSuccess(): void
+    public function testAddAllowedIpReturnsTrueOnSuccess(): void
     {
         $storage = $this->createInMemoryStorage();
         $manager = new MaintenanceManager($storage);
 
-        self::assertTrue($manager->addWhitelistIp('10.0.0.5'));
-        self::assertContains('10.0.0.5', $storage->load()->whitelistIps);
+        self::assertTrue($manager->addAllowedIp('10.0.0.5'));
+        self::assertContains('10.0.0.5', $storage->load()->allowedIps);
     }
 
-    public function testAddWhitelistIpReturnsFalseIfAlreadyPresent(): void
+    public function testAddAllowedIpReturnsFalseIfAlreadyPresent(): void
     {
         $storage = $this->createInMemoryStorage(
-            new MaintenanceState(whitelistIps: ['10.0.0.5']),
+            new MaintenanceState(allowedIps: ['10.0.0.5']),
         );
         $manager = new MaintenanceManager($storage);
 
-        self::assertFalse($manager->addWhitelistIp('10.0.0.5'));
+        self::assertFalse($manager->addAllowedIp('10.0.0.5'));
     }
 
-    public function testRemoveWhitelistIpReturnsTrueOnSuccess(): void
+    public function testRemoveAllowedIpReturnsTrueOnSuccess(): void
     {
         $storage = $this->createInMemoryStorage(
-            new MaintenanceState(whitelistIps: ['10.0.0.1', '10.0.0.2']),
+            new MaintenanceState(allowedIps: ['10.0.0.1', '10.0.0.2']),
         );
         $manager = new MaintenanceManager($storage);
 
-        self::assertTrue($manager->removeWhitelistIp('10.0.0.1'));
-        self::assertSame(['10.0.0.2'], $storage->load()->whitelistIps);
+        self::assertTrue($manager->removeAllowedIp('10.0.0.1'));
+        self::assertSame(['10.0.0.2'], $storage->load()->allowedIps);
     }
 
-    public function testRemoveWhitelistIpReturnsFalseIfNotPresent(): void
+    public function testRemoveAllowedIpReturnsFalseIfNotPresent(): void
     {
         $storage = $this->createInMemoryStorage();
         $manager = new MaintenanceManager($storage);
 
-        self::assertFalse($manager->removeWhitelistIp('10.0.0.99'));
+        self::assertFalse($manager->removeAllowedIp('10.0.0.99'));
     }
 
-    public function testRemoveWhitelistIpReindexesArray(): void
+    public function testRemoveAllowedIpReindexesArray(): void
     {
         $storage = $this->createInMemoryStorage(
-            new MaintenanceState(whitelistIps: ['10.0.0.1', '10.0.0.2', '10.0.0.3']),
+            new MaintenanceState(allowedIps: ['10.0.0.1', '10.0.0.2', '10.0.0.3']),
         );
         $manager = new MaintenanceManager($storage);
 
-        $manager->removeWhitelistIp('10.0.0.2');
+        $manager->removeAllowedIp('10.0.0.2');
 
-        self::assertSame(['10.0.0.1', '10.0.0.3'], $storage->load()->whitelistIps);
+        self::assertSame(['10.0.0.1', '10.0.0.3'], $storage->load()->allowedIps);
     }
 
-    public function testAddWhitelistPathReturnsTrueOnSuccess(): void
+    public function testAddAllowedPathReturnsTrueOnSuccess(): void
     {
         $storage = $this->createInMemoryStorage();
         $manager = new MaintenanceManager($storage);
 
-        self::assertTrue($manager->addWhitelistPath('/api'));
-        self::assertContains('/api', $storage->load()->whitelistPaths);
+        self::assertTrue($manager->addAllowedPath('/api'));
+        self::assertContains('/api', $storage->load()->allowedPaths);
     }
 
-    public function testAddWhitelistPathReturnsFalseIfAlreadyPresent(): void
+    public function testAddAllowedPathReturnsFalseIfAlreadyPresent(): void
     {
         $storage = $this->createInMemoryStorage();
         $manager = new MaintenanceManager($storage);
 
-        $manager->addWhitelistPath('/api');
-        self::assertFalse($manager->addWhitelistPath('/api'));
+        $manager->addAllowedPath('/api');
+        self::assertFalse($manager->addAllowedPath('/api'));
     }
 
-    public function testRemoveWhitelistPathReturnsTrueOnSuccess(): void
+    public function testRemoveAllowedPathReturnsTrueOnSuccess(): void
     {
         $storage = $this->createInMemoryStorage(
-            new MaintenanceState(whitelistPaths: ['/api', '/health']),
+            new MaintenanceState(allowedPaths: ['/api', '/health']),
         );
         $manager = new MaintenanceManager($storage);
 
-        self::assertTrue($manager->removeWhitelistPath('/api'));
-        self::assertSame(['/health'], $storage->load()->whitelistPaths);
+        self::assertTrue($manager->removeAllowedPath('/api'));
+        self::assertSame(['/health'], $storage->load()->allowedPaths);
     }
 
-    public function testRemoveWhitelistPathReturnsFalseIfNotPresent(): void
+    public function testRemoveAllowedPathReturnsFalseIfNotPresent(): void
     {
         $storage = $this->createInMemoryStorage();
         $manager = new MaintenanceManager($storage);
 
-        self::assertFalse($manager->removeWhitelistPath('/not-found'));
+        self::assertFalse($manager->removeAllowedPath('/not-found'));
     }
 
     private function createInMemoryStorage(?MaintenanceState $initial = null): MaintenanceStorageInterface
