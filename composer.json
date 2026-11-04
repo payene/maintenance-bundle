@@ -1,9 +1,9 @@
 {
     "name": "payene/maintenance-bundle",
-    "description": "Mode maintenance pour Symfony avec interface d'administration, whitelist et stockage configurable.",
+    "description": "Maintenance mode for Symfony with a web admin interface, allow list, and configurable storage.",
     "type": "symfony-bundle",
     "license": "MIT",
-    "keywords": ["symfony", "maintenance", "bundle", "503", "maintenance-mode"],
+    "keywords": ["symfony", "maintenance", "bundle", "503", "maintenance-mode", "allow-list"],
     "homepage": "https://github.com/payene/maintenance-bundle",
     "authors": [
         {
@@ -28,9 +28,9 @@
         "symfony/yaml": "^6.4 || ^7.0"
     },
     "suggest": {
-        "symfony/cache": "Pour stocker l'état dans Redis, Memcached, Doctrine ou tout autre cache pool Symfony.",
-        "symfony/security-csrf": "Requis pour les formulaires d'administration (protection CSRF).",
-        "symfony/security-bundle": "Recommandé pour protéger l'interface d'administration."
+        "symfony/cache": "To store the state in Redis, Memcached, Doctrine, or any other Symfony cache pool.",
+        "symfony/security-csrf": "Required for the administration forms (CSRF protection).",
+        "symfony/security-bundle": "Recommended to protect the administration interface."
     },
     "autoload": {
         "psr-4": {
@@ -50,7 +50,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-main": "1.0-dev"
+            "dev-main": "1.1-dev"
         }
     }
 }
